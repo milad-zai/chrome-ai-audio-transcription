@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Interview AI",
+  "version": "1.0",
+  "permissions": [
+    "tabs",
+    "sidePanel",
+    "tabCapture",
+    "scripting",
+    "background",
+    "activeTab",
+    "videoCapture"
+  ],
+  "action": {
+    "default_title": "Click to open panel"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "run_at": "document_end",
+      "js": ["content.js"]
+    }
+  ]
+}
