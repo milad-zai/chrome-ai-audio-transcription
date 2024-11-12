@@ -12,7 +12,6 @@ function App() {
   const [isCapturing, setIsCapturing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
-  const TRANSCRIPTION_API_URL = "http://localhost:3000/audio";
   const [, setChunks] = useState<Blob[]>([]);
 
   const transcriptionAreaRef = useRef<HTMLDivElement | null>(null);
@@ -59,26 +58,12 @@ function App() {
     [ReadyState.UNINSTANTIATED]: "Uninstantiated",
   }[readyState];
 
-  const sendAudioChunkToServer = async (audioBlob: Blob) => {
+  const sendAudioChunkToServer = (audioBlob: Blob) => {
     console.log("Sending audio chunk to server");
-
-    const formData = new FormData();
-    formData.append("audio", audioBlob, "audio.webm");
-
-    try {
-      const response = await fetch(TRANSCRIPTION_API_URL, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-
-      console.log("Response from server:", data);
-
-      if (data && data.transcription) {
-        console.log("Transcription:", data.transcription);
-      }
-    } catch (error) {
-      console.error("Error sending audio chunk:", error);
+    if (readyState === ReadyState.OPEN) {
+      sendMessage(audioBlob);
+    } else {
+      console.error("WebSocket is not open. Cannot send audio chunk.");
     }
   };
 
@@ -128,7 +113,7 @@ function App() {
     setIsCapturing(false);
   };
 
-  /* const handleCaptureToggle = async () => {
+  const handleCaptureToggle = async () => {
     if (isCapturing) {
       //chrome.runtime.sendMessage({ action: "stopCapture" });
       stopCapture();
@@ -156,7 +141,7 @@ function App() {
       });
     }
     setIsCapturing(!isCapturing);
-  }; */
+  };
 
   return (
     <div className="container">
@@ -183,7 +168,7 @@ function App() {
         <button
           id="startBtn"
           className="control-btn start-btn"
-          onClick={sendTestMessage}
+          onClick={handleCaptureToggle}
           disabled={isCapturing}
         >
           Start Transcribing

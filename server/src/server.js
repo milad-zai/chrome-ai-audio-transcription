@@ -41,12 +41,17 @@ wss.on("connection", (ws) => {
     console.error("WebSocket error:", error);
   });
 
-  ws.on("message", (data, isBinary) => {
-    const message = isBinary ? data : data.toString();
-    console.log("Received message:", message);
-    ws.send(
+  ws.on("message", (data) => {
+    if (data instanceof Buffer) {
+      console.log("Received audio chunk, size:", data.length);
+      connection.send(data);
+
+      /* ws.send(
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
-    );
+    ); */
+    } else {
+      console.log("Received non-binary data:", data.toString());
+    }
   });
 });
 
@@ -69,8 +74,9 @@ const live = async () => {
     // Listen for any transcripts received from Deepgram and write them to the console.
     connection.on(LiveTranscriptionEvents.Transcript, (data) => {
       console.dir(data, { depth: null });
-      if (userSocket) {
-        userSocket.send(JSON.stringify(data)); // Send transcription to the user
+      if (userSocket && data) {
+        console.log("Transcript:", data.channel.alternatives[0].transcript);
+        userSocket.send(data.channel.alternatives[0].transcript); // Send transcription to the user
       }
     });
 
@@ -95,7 +101,7 @@ const live = async () => {
   });
 };
 
-//live();
+live();
 
 app.post("/audio", upload.single("audio"), async (req, res) => {
   if (!req.file) {
