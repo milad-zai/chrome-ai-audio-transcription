@@ -2,12 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import "./App.css";
 
-type Action = "startCapture" | "stopCapture";
-type Message = {
-  action: Action;
-  stream?: MediaStream;
-};
-
 function App() {
   const [isCapturing, setIsCapturing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -17,7 +11,7 @@ function App() {
   const transcriptionAreaRef = useRef<HTMLDivElement | null>(null);
   const transcriptRef = useRef<HTMLDivElement | null>(null);
 
-  //Public API that will echo messages sent to it back to the client
+  const CHUNK_SIZE_IN_MS = 1000; // Collect audio data in 1-second chunks
   const SOCKET_URL = "ws://localhost:8080";
   const [messageHistory, setMessageHistory] = useState<MessageEvent<any>[]>([]);
   const { sendMessage, lastMessage, readyState } = useWebSocket(SOCKET_URL);
@@ -29,15 +23,9 @@ function App() {
     []
   );
 
-  /* const sendTestMessage = useCallback(() => {
-    setIsCapturing(true);
-    sendMessage("Hello");
-  }, [sendMessage]); */
-
   useEffect(() => {
     if (lastMessage !== null) {
       appendToMessageHistory(lastMessage);
-      //sendTestMessage();
 
       if (autoScroll && transcriptRef.current && transcriptionAreaRef.current) {
         requestAnimationFrame(() => {
@@ -83,27 +71,8 @@ function App() {
       audioStreamRef.current = null;
     };
 
-    mediaRecorder.start(1000); // Collect audio data in 1-second chunks
+    mediaRecorder.start(CHUNK_SIZE_IN_MS);
   };
-
-  useEffect(() => {
-    const handleMessage = (message: Message) => {
-      console.log("Message received:", message);
-      if (message.action === "startCapture" && !audioStreamRef.current) {
-        // Set audio stream if not already capturing
-        audioStreamRef.current = message.stream!;
-        setupMediaRecorder(audioStreamRef.current!);
-        setIsCapturing(true);
-      } else if (message.action === "stopCapture") {
-        stopCapture();
-      }
-    };
-
-    chrome.runtime.onMessage.addListener(handleMessage);
-    return () => {
-      chrome.runtime.onMessage.removeListener(handleMessage);
-    };
-  }, []);
 
   const stopCapture = () => {
     console.log("Stopping capture");
