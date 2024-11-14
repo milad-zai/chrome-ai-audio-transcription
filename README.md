@@ -5,9 +5,10 @@ This project is a Chrome browser extension that uses AI to transcribe audio from
 - **Chrome Extension (Client):** A Chrome extension built with React that captures audio from the active browser tab.
 - **Backend Server:** A server that integrates with Deepgram’s API to process and transcribe the captured audio in real-time.
 
-![Screenshot](client/public/screenshot.png)
+![Screenshot](https://github.com/milad-zai/chrome-ai-audio-transcription/blob/main/client/public/screenshot.PNG)
 
 ## Features
+
 - **Transcription in Real-Time**: Transcribe audio from any active tab in your browser using AI.
 - **AI-Powered Transcription**: Utilizes Deepgram's live transcription API to provide accurate transcriptions.
 - **React Client**: Built using React for a smooth user interface and seamless integration with the browser.
@@ -19,16 +20,19 @@ This project is a Chrome browser extension that uses AI to transcribe audio from
 ### Client-Side (React)
 
 1. **Install dependencies:**
-    ```bash
+
+   ```bash
    npm install
    ```
 
 2. **Build the extension:**
-    ```bash
+
+   ```bash
    npm run build
    ```
 
 3. **Load the extension in Chrome:**
+
 - Open chrome://extensions/ in your browser.
 - Enable "Developer mode".
 - Click "Load unpacked" and select the build folder inside the project.
@@ -36,12 +40,14 @@ This project is a Chrome browser extension that uses AI to transcribe audio from
 ### Server-Side
 
 1. **Install server-side dependencies:**
+
 ```bash
 npm install
 ```
 
 2. **Configure the server:**
-Create a .env file in the root directory and add the following values:
+   Create a .env file in the root directory and add the following values:
+
 ```bash
 DEEPGRAM_API_KEY=YOUR API KEY
 ```
@@ -55,15 +61,19 @@ npm start
 ```
 
 ## How It Works
+
 1. **Client (Chrome Extension):** The Chrome extension listens for audio from the active tab and sends the audio data to the server via WebSockets.
 2. **Server (Node.js):** The server receives the audio data, sends it to Deepgram for transcription, and sends the transcription back to the extension.
 3. **Real-Time Transcription:** The server continuously streams audio to Deepgram and receives real-time transcription data, which is displayed in the Chrome extension.
 
 ## Usage
+
 Once the extension is installed, you can start it by clicking the extension icon in the browser toolbar. It will start transcribing audio from the active tab. The transcriptions will be displayed in the extension's popup.
 
 ## License
+
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Contributing
+
 Contributions are welcome! Please feel free to fork the repository, submit issues, or open pull requests.
