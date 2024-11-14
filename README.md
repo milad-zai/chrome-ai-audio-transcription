@@ -3,7 +3,7 @@
 This project is a Chrome browser extension that uses AI to transcribe audio from any active tab in real-time. The project consists of two main parts:
 
 - **Chrome Extension (Client):** A Chrome extension built with React that captures audio from the active browser tab.
-- **Backend Server:** A server that integrates with Deepgram’s API to process and transcribe the captured audio in real-time.
+- **Backend Server:** A server built with Node.js that integrates with Deepgram’s API to process and transcribe the captured audio in real-time.
 
 ![Screenshot](https://github.com/milad-zai/chrome-ai-audio-transcription/blob/main/client/public/screenshot.PNG)
 
@@ -69,6 +69,10 @@ npm start
 ## Usage
 
 Once the extension is installed, you can start it by clicking the extension icon in the browser toolbar. It will start transcribing audio from the active tab. The transcriptions will be displayed in the extension's popup.
+
+## Future Plans
+
+In the future, this extension aims to transition from using the traditional popup-based interface to leveraging Chrome's new **SidePanel API** for a more integrated and seamless user experience. The SidePanel provides a more modern and persistent way to display content within the browser without blocking the view, offering additional flexibility compared to the popup UI. Unfortunately i run into some problems capturing audio in sidePanel.
 
 ## License
 
