@@ -32,7 +32,17 @@ function useAudioCapture(
         console.error("Error capturing audio:", chrome.runtime.lastError);
         return;
       }
+
       audioStreamRef.current = stream;
+
+      try {
+        const output = new AudioContext();
+        const source = output.createMediaStreamSource(stream);
+        source.connect(output.destination);
+      } catch (error) {
+        console.error("Error creating audio context:", error);
+      }
+
       setupMediaRecorder(stream);
     });
   };
