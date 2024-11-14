@@ -1,21 +1,27 @@
 // websocketService.js
 const WebSocket = require("ws");
 const constants = require("../config/constants");
-const deepgramService = require("./deepgramService");
 
 class WebSocketService {
   constructor() {
-    if (!WebSocketService.instance) {
-      this.wss = null;
-      this.userSocket = null;
-      WebSocketService.instance = this;
-    }
-    return WebSocketService.instance;
+    this.reset();
+    this.init();
   }
 
   init() {
     this.wss = new WebSocket.Server({ port: constants.WEBSOCKET_PORT });
     this.setupWebSocketEvents();
+  }
+
+  reset() {
+    this.wss = null;
+    this.userSocket = null;
+    this.deepgramService = null;
+  }
+
+  // Setter to inject DeepgramService instance
+  setDeepgramService(deepgramService) {
+    this.deepgramService = deepgramService;
   }
 
   setupWebSocketEvents() {
@@ -45,13 +51,17 @@ class WebSocketService {
   handleMessage(data) {
     if (data instanceof Buffer) {
       console.log("Received audio chunk of size:", data.length);
-      deepgramService.sendAudioChunk(data);
+      if (this.deepgramService) {
+        this.deepgramService.sendAudioChunk(data);
+      } else {
+        console.log("Deepgram service not initialized");
+      }
     } else {
       console.log("Received non-binary message:", data.toString());
     }
 
     // Send dummy transcript for testing
-    //this.userSocket?.send("This is a placeholder transcript.");
+    //this.sendTranscript("This is a placeholder transcript.");
   }
 
   sendTranscript(transcript) {

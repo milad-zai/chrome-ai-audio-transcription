@@ -5,12 +5,10 @@ const websocketService = require("./websocketService");
 
 class DeepgramService {
   constructor() {
-    if (!DeepgramService.instance) {
-      this.deepgramClient = createClient(config.DEEPGRAM_API_KEY);
-      this.connection = null;
-      DeepgramService.instance = this;
-    }
-    return DeepgramService.instance;
+    this.deepgramClient = createClient(config.DEEPGRAM_API_KEY);
+    this.connection = null;
+    websocketService.setDeepgramService(this); // Inject DeepgramService into WebSocketService
+    this.keepAliveInterval = null;
   }
 
   async initConnection() {
@@ -20,12 +18,16 @@ class DeepgramService {
       language: constants.DEFAULT_LANGUAGE,
     });
 
+    this.connection.keepAlive();
+
     this.connection.on(LiveTranscriptionEvents.Open, () => {
       console.log("Deepgram connection opened.");
+      this.startKeepAlive();
     });
 
     this.connection.on(LiveTranscriptionEvents.Close, () => {
       console.log("Deepgram connection closed.");
+      this.stopKeepAlive();
     });
 
     this.connection.on(LiveTranscriptionEvents.Transcript, (data) => {
@@ -43,12 +45,38 @@ class DeepgramService {
     });
   }
 
+  startKeepAlive() {
+    if (this.keepAliveInterval) {
+      clearInterval(this.keepAliveInterval);
+    }
+
+    this.keepAliveInterval = setInterval(() => {
+      if (this.connection && this.connection.keepAlive) {
+        console.log("Sending keep-alive message...");
+        this.connection.keepAlive();
+      }
+    }, 10000);
+  }
+
+  stopKeepAlive() {
+    if (this.keepAliveInterval) {
+      clearInterval(this.keepAliveInterval); // Stop the periodic keep-alive
+      this.keepAliveInterval = null;
+    }
+  }
+
   sendAudioChunk(chunk) {
-    if (this.connection) {
+    console.log(
+      "Deepgram connection state:",
+      this.connection.connectionState()
+    );
+    if (this.connection && this.connection.isConnected()) {
       this.connection.send(chunk);
     } else {
-      console.error("Deepgram connection not initialized");
+      console.error("Deepgram connection not initialized, reconnecting...");
+      this.initConnection();
     }
+    this.startKeepAlive();
   }
 }
 

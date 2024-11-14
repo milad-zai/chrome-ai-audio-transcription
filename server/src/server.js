@@ -8,9 +8,6 @@ deepgramService
   .initConnection()
   .catch((err) => console.error("Deepgram connection error:", err));
 
-// Initialize the WebSocket
-websocketService.init();
-
 // Start the Express server
 app.listen(constants.EXPRESS_PORT, () => {
   console.log(`Express server running on port ${constants.EXPRESS_PORT}`);
