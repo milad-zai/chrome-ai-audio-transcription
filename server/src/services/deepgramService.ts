@@ -1,9 +1,13 @@
-const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
-const config = require("../config/config");
-const constants = require("../config/constants");
-const websocketService = require("./websocketService");
+import { createClient, LiveTranscriptionEvents } from "@deepgram/sdk";
+import config from "../config/config";
+import constants from "../config/constants";
+import websocketService from "./websocketService";
 
 class DeepgramService {
+  private deepgramClient: any;
+  private connection: any;
+  private keepAliveInterval: NodeJS.Timeout | null;
+
   constructor() {
     this.deepgramClient = createClient(config.DEEPGRAM_API_KEY);
     this.connection = null;
@@ -30,7 +34,7 @@ class DeepgramService {
       this.stopKeepAlive();
     });
 
-    this.connection.on(LiveTranscriptionEvents.Transcript, (data) => {
+    this.connection.on(LiveTranscriptionEvents.Transcript, (data: any) => {
       console.dir(data, { depth: null });
       if (data) {
         console.log("Transcript:", data.channel.alternatives[0].transcript);
@@ -40,7 +44,7 @@ class DeepgramService {
       }
     });
 
-    this.connection.on(LiveTranscriptionEvents.Metadata, (data) => {
+    this.connection.on(LiveTranscriptionEvents.Metadata, (data: any) => {
       console.log("Metadata received:", data);
     });
   }
@@ -65,7 +69,7 @@ class DeepgramService {
     }
   }
 
-  sendAudioChunk(chunk) {
+  sendAudioChunk(chunk: Buffer) {
     console.log(
       "Deepgram connection state:",
       this.connection.connectionState()
@@ -80,4 +84,4 @@ class DeepgramService {
   }
 }
 
-module.exports = new DeepgramService();
+export default new DeepgramService();

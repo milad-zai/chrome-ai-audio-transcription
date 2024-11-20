@@ -1,8 +1,12 @@
 // websocketService.js
-const WebSocket = require("ws");
-const constants = require("../config/constants");
+import WebSocket from "ws";
+import constants from "../config/constants";
 
 class WebSocketService {
+  private wss: WebSocket.Server | null = null;
+  private userSocket: WebSocket | null = null;
+  private deepgramService: any | null = null;
+
   constructor() {
     this.reset();
     this.init();
@@ -20,12 +24,12 @@ class WebSocketService {
   }
 
   // Setter to inject DeepgramService instance
-  setDeepgramService(deepgramService) {
+  setDeepgramService(deepgramService: any) {
     this.deepgramService = deepgramService;
   }
 
   setupWebSocketEvents() {
-    this.wss.on("connection", (ws) => {
+    this.wss!.on("connection", (ws) => {
       console.log("New WebSocket connection established");
       this.userSocket = ws;
 
@@ -37,18 +41,18 @@ class WebSocketService {
       ws.on("error", (error) => console.error("WebSocket error:", error));
     });
 
-    this.wss.on("listening", () => {
+    this.wss!.on("listening", () => {
       console.log(
         `WebSocket server is listening on port ${constants.WEBSOCKET_PORT}`
       );
     });
 
-    this.wss.on("error", (error) =>
+    this.wss!.on("error", (error) =>
       console.error("WebSocket server error:", error)
     );
   }
 
-  handleMessage(data) {
+  handleMessage(data: any) {
     if (data instanceof Buffer) {
       console.log("Received audio chunk of size:", data.length);
       if (this.deepgramService) {
@@ -64,7 +68,7 @@ class WebSocketService {
     //this.sendTranscript("This is a placeholder transcript.");
   }
 
-  sendTranscript(transcript) {
+  sendTranscript(transcript: any) {
     if (this.userSocket) {
       this.userSocket.send(transcript);
     } else {
@@ -73,4 +77,4 @@ class WebSocketService {
   }
 }
 
-module.exports = new WebSocketService();
+export default new WebSocketService();
